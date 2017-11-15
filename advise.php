@@ -77,5 +77,5 @@ $amount =$funds / $avg_l;
 $profit = $amount * ($avg_h-$avg_l) * 7000;
 
 foreach(['avg_l','avg','avg_h','amount','profit'] as $k){
-    echo $k.': '.sprintf('%.9F',$$k).PHP_EOL;
+    echo $k.': '.sprintf('%.'.$config['tick_size'].'F',$$k).PHP_EOL;
 }

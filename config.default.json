@@ -5,6 +5,6 @@
 	"currency" : "XEM",
 	"symbol" : "XEMBTC",
 	"funds" : 0.00001,
-	"advisor_interval" : 300
-
+	"advisor_interval" : 300,
+	"tick_size" : 8
 }
