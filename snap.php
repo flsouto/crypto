@@ -1,8 +1,12 @@
 <?php
 
+require __DIR__.'/utils.php';
+
+$config = get_config();
+
 $last_time = null;
 
-$symbol = "XEMBTC";
+$symbol = $config["symbol"];
 
 if(!is_dir($dir=__DIR__."/snaps/$symbol/")){
     mkdir($dir);

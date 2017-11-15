@@ -1,5 +1,7 @@
 <?php
 
+require __DIR__.'/utils.php';
+
 $status = 'buy';
 $buy_at = null;
 $sell_at = null;
@@ -15,10 +17,8 @@ while(true){
 
         if($buy_at){
 
-            do{
-                $last = file_get_contents(__DIR__.'/snaps/XEMBTC/last.txt');
-            } while(empty($last));
-            
+            $last = get_last();
+
             if((time()-$since) >= 60){
                 $buy_at = null;
                 $sell_at = null;
@@ -55,9 +55,7 @@ while(true){
 
     } else if($status=='sell') {
 
-        do{
-            $last = file_get_contents(__DIR__.'/snaps/XEMBTC/last.txt');
-        } while(empty($last));
+        $last = get_last();
 
         echo '... '.$sell_at.' (since '.date('H:i',$since).' - current: '.$last.') '.PHP_EOL;
 
@@ -74,7 +72,6 @@ while(true){
         }
         
     }
-
 
 
 }

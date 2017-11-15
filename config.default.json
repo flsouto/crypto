@@ -1,8 +1,10 @@
 {
 
-	"public_key":"",
+	"api_key":"",
 	"secret_key":"",
 	"currency" : "XEM",
-	"symbol" : "XEMBTC"
+	"symbol" : "XEMBTC",
+	"funds" : 0.00001,
+	"advisor_interval" : 300
 
 }
