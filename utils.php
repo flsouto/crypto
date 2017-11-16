@@ -24,6 +24,19 @@ function get_last(){
     return $last;
 }
 
+function get_advice(){
+    $output = `php advise.php`;
+    $advice = [];
+    foreach(explode("\n",$output) as $line){
+        if(empty($line)){
+            continue;
+        }
+        list($k,$v) = explode(":",$line);
+        $advice[$k] = $v;
+    }
+    return $advice;
+}
+
 function get_balance($currency){
 	$conf = get_config();
 	$cmd = 'curl -X GET -u "'.$conf['api_key'].':'.$conf['secret_key'].'" "https://api.hitbtc.com/api/2/trading/balance"';
@@ -34,5 +47,5 @@ function get_balance($currency){
 			return $row['available'];
 		}
 	}
-
 }
+

@@ -76,6 +76,22 @@ $funds = $config['funds'];
 $amount =$funds / $avg_l;
 $profit = $amount * ($avg_h-$avg_l) * 7000;
 
-foreach(['avg_l','avg','avg_h','amount','profit'] as $k){
+
+$rise = 0;
+$fall = 0;
+$len = count($values);
+for($i=1;$i<$len;$i++){
+    if($diff = $values[$i] - $values[$i-1]){
+        if($diff<0){
+            $fall += abs($diff);
+        } else {
+            $rise += $diff;
+        }
+    }
+}
+
+$score = $rise - $fall;
+
+foreach(['avg_l','avg','avg_h','amount','rise','fall','score','profit'] as $k){
     echo $k.': '.sprintf('%.'.$config['tick_size'].'F',$$k).PHP_EOL;
 }

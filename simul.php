@@ -32,14 +32,11 @@ while(true){
             
         } else {
             
-            $output = `php advise.php`;
-            $advice = [];
-            foreach(explode("\n",$output) as $line){
-                if(empty($line)){
-                    continue;
-                }
-                list($k,$v) = explode(":",$line);
-                $advice[$k] = $v;
+            $advice = get_advice();
+            if($advice['score'] < 0){
+                echo '!!!!!!!! ('.$advice['score'].')'.PHP_EOL;
+                sleep(10);
+                continue;
             }
             
             if(!empty($advice['avg_l']) && !empty($advice['avg_h'])){
@@ -57,6 +54,15 @@ while(true){
 
         $last = get_last();
 
+        if(time()-$since >= 60){
+            $advice = get_advice();
+            if($advice['avg_h'] < $sell_at && $advice['avg_h'] > $buy_at){
+                $sell_at = $advice['avg_h'];
+                $profit = $advice['profit'];
+                $since = time();
+            }
+        }
+        
         echo '... '.$sell_at.' (since '.date('H:i',$since).' - current: '.$last.') '.PHP_EOL;
 
         if($last >= $sell_at){
