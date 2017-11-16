@@ -37,6 +37,10 @@ function get_advice(){
     return $advice;
 }
 
+function calc_profit($low, $high){
+
+}
+
 function get_balance($currency){
 	$conf = get_config();
 	$cmd = 'curl -X GET -u "'.$conf['api_key'].':'.$conf['secret_key'].'" "https://api.hitbtc.com/api/2/trading/balance"';
