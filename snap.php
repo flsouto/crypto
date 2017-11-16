@@ -24,6 +24,7 @@ while(true){
 
         file_put_contents("$dir/$day.txt",$row['last']."|".$time.PHP_EOL,FILE_APPEND);
         file_put_contents("$dir/last.txt",$row['last']);
+        echo $row['last'].PHP_EOL;
 
     }
 
