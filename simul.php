@@ -58,7 +58,7 @@ while(true){
             $advice = get_advice();
             if($advice['avg_h'] < $sell_at && $advice['avg_h'] > $buy_at){
                 $sell_at = $advice['avg_h'];
-                $profit = $advice['profit'];
+                $profit = calc_profit($buy_at, $sell_at);
                 $since = time();
             }
         }

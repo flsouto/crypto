@@ -73,13 +73,8 @@ $avg_h = array_sum($high) / count($high);
 $avg_l = array_sum($low) / count($low);
 
 $funds = $config['funds'];
-$fees = $funds * .1 / 100;
 $amount = $funds / $avg_l;
-$profit = $amount * ($avg_h-$avg_l);
-$fees += $profit * .1 / 100;
-$profit -= $fees;
-$profit *= 7000;
-
+$profit = calc_profit($avg_l, $avg_h);
 
 $rise = 0;
 $fall = 0;

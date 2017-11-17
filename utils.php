@@ -38,7 +38,15 @@ function get_advice(){
 }
 
 function calc_profit($low, $high){
-
+    $config = get_config();
+    $funds = $config['funds'];
+    $fees = $funds * .1 / 100;
+    $amount = $funds / $low;
+    $profit = $amount * ($high-$low);
+    $fees += $profit * .1 / 100;
+    $profit -= $fees;
+    $profit *= 7000;
+    return $profit;
 }
 
 function get_balance($currency){
