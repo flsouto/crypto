@@ -7,6 +7,7 @@ $buy_at = null;
 $sell_at = null;
 $since = null;
 $profit = 0;
+$min_profit = .1;
 
 file_put_contents(__DIR__."/simul.txt","");
 
@@ -38,6 +39,12 @@ while(true){
                 sleep(10);
                 continue;
             }
+
+            if($advice['profit'] < $min_profit){
+                echo "<<<<< $min_profit (".$advice['profit'].')'.PHP_EOL;
+                sleep(10);
+                continue;
+            }
             
             if(!empty($advice['avg_l']) && !empty($advice['avg_h'])){
                 $buy_at = $advice['avg_l'];
@@ -56,10 +63,10 @@ while(true){
 
         if(time()-$since >= 60){
             $advice = get_advice();
-            if($advice['avg_h'] < $sell_at && $advice['avg_h'] > $buy_at){
+            if($advice['avg_h'] < $sell_at && $advice['avg_h'] > $buy_at && calc_profit($buy_at, $advice['avg_h']) >= $min_profit){
                 $sell_at = $advice['avg_h'];
-                $profit = calc_profit($buy_at, $sell_at);
                 $since = time();
+                $profit = calc_profit($buy_at, $sell_at);
             }
         }
         
