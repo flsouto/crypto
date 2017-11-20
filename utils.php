@@ -61,3 +61,47 @@ function get_balance($currency){
 	}
 }
 
+
+function add_order($type, $amount, $price){
+	$config = get_config();
+	$api_key = $config['api_key'];
+	$secret_key = $config['secret_key'];
+	$symbol = $config['symbol'];
+
+	$cmd = <<<CMD
+curl -X POST -u "$api_key:$secret_key" "https://api.hitbtc.com/api/2/order" -d 'symbol=$symbol&side=$type&quantity=$amount&price=$price'
+CMD;
+
+	$output = shell_exec($cmd);
+	return json_decode($output, true);
+}
+
+function get_order($oid){
+	$config = get_config();
+	$api_key = $config['api_key'];
+	$secret_key = $config['secret_key'];
+
+	$cmd = <<<CMD
+	curl -X GET -u "$api_key:$secret_key" \
+     "https://api.hitbtc.com/api/2/order/$oid"
+CMD;
+	$output = shell_exec($cmd);
+	return json_decode($output, true);
+
+}
+
+function cancel_order($oid){
+	
+	$conf = get_config();
+	$api_key = $conf['api_key'];
+	$secret_key = $conf['secret_key'];
+
+	$cmd = <<<CMD
+curl -X DELETE -u "$api_key:$secret_key" \
+    "https://api.hitbtc.com/api/2/order/$oid"    
+CMD;
+	
+	$output = shell_exec($cmd);
+
+	return json_decode($output,true);
+}
