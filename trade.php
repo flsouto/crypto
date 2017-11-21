@@ -12,6 +12,11 @@ $order_b = [];
 $order_s = [];
 $highest = 0;
 
+function log($msg){
+    $msg .= '|'.date('Y-m-d H:i');
+    file_put_contents(__DIR__."/logs.txt",$msg.PHP_EOL,FILE_APPEND);
+}
+
 function sell_remainder(){
     global $highest;
     static $last_call = null;
@@ -27,7 +32,9 @@ function sell_remainder(){
     $balance = get_balance($currency);
     if($balance && $highest){
         $o = add_order('sell',$balance,$highest);
-        echo 'Selling remainder: '.$balance.' '.$currency.PHP_EOL;
+        $msg = 'Selling remainder: '.$balance.' '.$currency;
+        echo $msg.PHP_EOL;
+        log($msg);
         return $o;
     }
     return false;
