@@ -73,7 +73,7 @@ $avg_h = array_sum($high) / count($high);
 $avg_l = array_sum($low) / count($low);
 
 $funds = $config['funds'];
-$amount = $funds / $avg_l;
+$amount = ceil($funds / $avg_l);
 $profit = calc_profit($avg_l, $avg_h);
 
 $rise = 0;

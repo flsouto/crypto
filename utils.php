@@ -32,7 +32,7 @@ function get_advice(){
             continue;
         }
         list($k,$v) = explode(":",$line);
-        $advice[$k] = $v;
+        $advice[$k] = trim($v);
     }
     return $advice;
 }
@@ -88,6 +88,16 @@ CMD;
 	$output = shell_exec($cmd);
 	return json_decode($output, true);
 
+}
+
+function is_order_filled($oid){
+	$result = get_order($oid);
+	return !empty($result['error']) && $result['error']['code']=='20002';
+}
+
+function is_order_idle($oid){
+	$result = get_order($oid);
+	return isset($result['status']) && $result['status']=='new';
 }
 
 function cancel_order($oid){
