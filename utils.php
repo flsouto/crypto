@@ -115,3 +115,59 @@ CMD;
 
 	return json_decode($output,true);
 }
+
+function get_orders(){
+	$config = get_config();
+	$api_key = $config['api_key'];
+	$secret_key = $config['secret_key'];
+
+	$cmd = <<<CMD
+	curl -X GET -u "$api_key:$secret_key" \
+     "https://api.hitbtc.com/api/2/order"
+CMD;
+	$output = shell_exec($cmd);
+	return json_decode($output, true);
+
+}
+
+function get_intended_balance(){
+
+	$orders = get_orders();
+	$balance = get_balance('BTC');
+
+	$last = get_last();
+
+	foreach($orders as $o){
+		/*
+		if($o['side']!='sell'){
+			continue;
+		} */
+
+		$value = ($o['quantity'] * $o['price']);
+		$fee = $value * .1 /100;
+		$balance += $value;
+		$balance -= $fee;
+
+	}
+
+	return $balance;
+
+}
+
+function get_real_balance(){
+
+	$orders = get_orders();
+	$balance = get_balance('BTC');
+
+	$last = get_last();
+
+	foreach($orders as $o){
+		if($o['side']!='sell'){
+			continue;
+		}
+		$balance += ($o['quantity'] * $last);
+	}
+
+	return $balance;
+
+}

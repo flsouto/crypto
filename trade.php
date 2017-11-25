@@ -7,12 +7,12 @@ $buy_at = null;
 $sell_at = null;
 $since = null;
 $profit = 0;
-$min_profit = .00001;
+$min_profit = .001;
 $order_b = [];
 $order_s = [];
 $highest = 0;
 
-function log($msg){
+function log_msg($msg){
     $msg .= '|'.date('Y-m-d H:i');
     file_put_contents(__DIR__."/logs.txt",$msg.PHP_EOL,FILE_APPEND);
 }
@@ -32,17 +32,34 @@ function sell_remainder(){
     $balance = get_balance($currency);
     if($balance && $highest){
         $o = add_order('sell',$balance,$highest);
-        $msg = 'Selling remainder: '.$balance.' '.$currency;
+        $msg = 'Selling remainder: '.$balance.' '.$currency.' at '.$highest;
         echo $msg.PHP_EOL;
-        log($msg);
+        log_msg($msg);
         return $o;
     }
     return false;
 }
 
+function log_balance(){
+    
+    static $last_call = null;
+
+    if($last_call && (time()-$last_call) < 60*30){
+        return;
+    }
+
+    $last_call = time();
+
+    $balance = get_intended_balance().'|'.date('Y-m-d H:i:s');
+
+    file_put_contents(__DIR__.'/balance.txt',$balance.PHP_EOL,FILE_APPEND);
+
+}
+
 while(true){
 
     sell_remainder();
+    log_balance();
 
     if($status=='buy'){
 
@@ -96,7 +113,7 @@ while(true){
             if((time()-$since) >= 60){
 
                 // CANCEL, GO TO PREVIOUS STEP
-                cancel_order($order_b['clientOrderId']);
+                $output = cancel_order($order_b['clientOrderId']);
                 $buy_at = null;
                 $sell_at = null;
                 continue;
@@ -136,6 +153,15 @@ while(true){
         // STEP 3 - CHECK SELL ORDER IS FILLED
 
         // TOO LONG WATING?
+        if(time()-$since >= 600){
+            // LEAVE IT
+            $status = 'buy';
+            $buy_at = null;
+            $order_s = [];
+            $order_b = [];
+            continue;
+        }
+
         if(time()-$since >= 60){
 
             // TRY NEW ADVICE
@@ -183,8 +209,6 @@ while(true){
                 $buy_at = null;
                 $order_s = [];
                 $order_b = [];
-
-                file_put_contents(__DIR__."/balance.txt",get_balance('BTC').PHP_EOL,FILE_APPEND);
 
             } else {
                 sleep(5);
