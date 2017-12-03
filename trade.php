@@ -2,23 +2,12 @@
 
 require __DIR__.'/utils.php';
 
-$status = 'buy';
-$buy_at = null;
-$sell_at = null;
-$since = null;
-$profit = 0;
-$min_profit = .001;
-$order_b = [];
-$order_s = [];
-$highest = 0;
-
 function log_msg($msg){
     $msg .= '|'.date('Y-m-d H:i');
     file_put_contents(__DIR__."/logs.txt",$msg.PHP_EOL,FILE_APPEND);
 }
 
 function sell_remainder(){
-    global $highest;
     static $last_call = null;
 
     if($last_call && (time()-$last_call) < 180){
@@ -30,7 +19,11 @@ function sell_remainder(){
     $config = get_config();
     $currency = $config['currency'];
     $balance = get_balance($currency);
-    if($balance && $highest){
+    if($balance){
+        $highest = get_highest_price(60*60);
+        if(!$highest){
+            return false;
+        }
         $o = add_order('sell',$balance,$highest);
         $msg = 'Selling remainder: '.$balance.' '.$currency.' at '.$highest;
         echo $msg.PHP_EOL;
@@ -55,6 +48,17 @@ function log_balance(){
     file_put_contents(__DIR__.'/balance.txt',$balance.PHP_EOL,FILE_APPEND);
 
 }
+
+init:
+
+$status = 'buy';
+$buy_at = null;
+$sell_at = null;
+$since = null;
+$profit = 0;
+$min_profit = .001;
+$order_b = [];
+$order_s = [];
 
 while(true){
 
@@ -86,6 +90,15 @@ while(true){
             // ADVICE OK
             if(!empty($advice['avg_l']) && !empty($advice['avg_h'])){
 
+                if($range = check_slot_taken($advice['avg_h'])){
+                    $msg = "range is taken: ".$range." (value attempted: ".$advice['avg_h'].") ";
+                    echo $msg.PHP_EOL;
+                    log_msg($msg);
+                    sleep(10);
+                    continue;
+                }
+
+
                 // ADD ORDER
                 $order_b = add_order('buy',$advice['amount'],$advice['avg_l']);
                 if(!empty($order_b['clientOrderId'])){
@@ -93,12 +106,9 @@ while(true){
                     $sell_at = $advice['avg_h'];
                     $profit = $advice['profit'];
                     $since = time();
-                    if($sell_at > $highest){
-                        $highest = $sell_at;
-                    }
                     echo '+++ '.$buy_at.PHP_EOL;
                 } else {
-                    echo 'Could not place b order. Output was: '.print_r($order_b,1).PHP_EOL;
+                    echo 'Could not place buy order. Output was: '.print_r($order_b,1).PHP_EOL;
                     sleep(10);
                     continue;
                 }
@@ -112,11 +122,16 @@ while(true){
             // TOO LONG WATING...
             if((time()-$since) >= 60){
 
-                // CANCEL, GO TO PREVIOUS STEP
                 $output = cancel_order($order_b['clientOrderId']);
-                $buy_at = null;
-                $sell_at = null;
-                continue;
+                if(isset($output['error'])){
+                    goto try_sell;
+                } else {
+                 // CANCELED, GO TO PREVIOUS STEP
+                    $buy_at = null;
+                    $sell_at = null;
+                    continue;
+
+                }
             }
             
             $last = get_last();
@@ -124,9 +139,9 @@ while(true){
             // LAST PRICE IS AS EXPECTED?
             if($last <= $buy_at){
 
-                // HAS THE ORDER BEEN FILLED ?            
+                // HAS THE ORDER BEEN FILLED ?   
                 if(is_order_filled($order_b['clientOrderId'])){
-                    
+                    try_sell:                
                     // ADD SELL ORDER
                     $order_s = add_order('sell',$advice['amount'],$sell_at);
                     if(!empty($order_s['clientOrderId'])){
@@ -137,9 +152,8 @@ while(true){
                         
                     } else {
                         
-                        echo 'Could not place s order. Output was: '.print_r($order_s,1);
-                        sleep(10);
-                        continue;
+                        echo 'Could not place sell order. Output was: '.print_r($order_s,1);
+                        goto init;
                     }
                 }
 

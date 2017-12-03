@@ -171,3 +171,85 @@ function get_real_balance(){
 	return $balance;
 
 }
+
+
+function select_range(array $ranges, $value){
+	foreach($ranges as $r){
+		if($r[0] <= $value && $r[1] >= $value){
+			return sprintf('%.8F',$r[0]).'-'.sprintf('%.8F',$r[1]);
+		}
+	}
+}
+
+function check_slot_taken($value){
+
+	$start = 0.00001000;
+	$finish = 0.00009000;
+
+	$step = 0.00000015;
+
+	$current = $start;
+	$ranges = [];
+	while($current <= $finish){
+		$current += $step;
+		$ranges[] = [$current, $current+$step];
+	}
+
+	$locked = [];
+	foreach(get_orders() as $o){
+		if($o['side']=='sell'){
+			$locked[] = select_range($ranges, $o['price']);
+		}
+	}
+
+	$range = select_range($ranges, $value);
+
+	if(in_array($range, $locked)){
+		return $range;
+	}
+
+}
+
+function get_highest_price($interval){
+
+	$config = get_config();
+
+	$symbol = $config['symbol'];
+
+	$array = [];
+
+	foreach(glob(__DIR__."/snaps/$symbol/*.txt") as $file){
+	    if(strstr($file,'last.txt')){
+	        continue;
+	    }
+	    $array[filemtime($file)] = $file;
+	}
+
+	krsort($array);
+
+	$file = current($array);
+
+	$values = [];
+
+	$highest = 0;
+
+	foreach(file($file) as $line){
+	    $line = trim($line);
+	    if(empty($line)){
+	        continue;
+	    }
+
+	    list($value, $time) = explode("|",$line);
+
+	    if(time()-$time <= $interval){
+	        if($value > $highest){
+	        	$highest = $value;
+	        }
+	    }
+
+	}
+
+	return $highest;
+
+
+}

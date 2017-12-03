@@ -32,5 +32,14 @@ $profit_usd = $row['last'] * $profit_btc;
 echo 'BTC: '.sprintf('%.9F',$profit_btc).PHP_EOL;
 echo 'USD: '.sprintf('%.9F',$profit_usd).PHP_EOL;
 
+$brl_rate = json_decode(file_get_contents("https://api.fixer.io/latest?symbols=BRL&base=USD"),true)['rates']['BRL'];
+
+$profit_brl = $profit_usd * $brl_rate;
+echo 'BRL: '.sprintf('%.9F',$profit_brl).PHP_EOL;
+
+
+
+
+
 
 
