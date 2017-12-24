@@ -5,6 +5,11 @@ if(empty($argv[1])){
 }
 
 $hours = $argv[1];
+if(strstr($hours,'*')){
+	$hours = explode('*', $hours);
+	$hours = $hours[0] * $hours[1];
+}
+
 $from_date = date('Y-m-d H:i:s',strtotime('- '.$hours.' hours'));
 
 $first_value = null;
@@ -16,6 +21,9 @@ foreach(file(__DIR__."/balance.txt") as $line){
 		continue;
 	}
 	list($value, $datetime) = explode("|",$line);
+	if(empty($value)){
+		continue;
+	}
 	if($datetime >= $from_date){
 		if(!$first_value){
 			$first_value = $value;

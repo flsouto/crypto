@@ -24,6 +24,17 @@ function get_last(){
     return $last;
 }
 
+function get_btc2usd(){
+	$file = __DIR__.'/btc2usd.txt';
+	if(!file_exists($file) OR time()-filemtime($file) > 60*60*3){
+		$row = json_decode(file_get_contents('https://api.hitbtc.com/api/2/public/ticker/BTCUSD'),true);
+		if(!empty($row['last'])){
+			file_put_contents($file, $row['last']);
+		}
+	}
+	return file_get_contents($file) ?: 10000;
+}
+
 function get_advice(){
     $output = `php advise.php`;
     $advice = [];
@@ -45,7 +56,7 @@ function calc_profit($low, $high){
     $profit = $amount * ($high-$low);
     $fees += $profit * .1 / 100;
     $profit -= $fees;
-    $profit *= 7000;
+    $profit *= get_btc2usd();
     return $profit;
 }
 
@@ -186,7 +197,7 @@ function check_slot_taken($value){
 	$start = 0.00001000;
 	$finish = 0.00009000;
 
-	$step = 0.00000015;
+	$step = 0.00000050;
 
 	$current = $start;
 	$ranges = [];

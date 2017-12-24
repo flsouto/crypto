@@ -8,6 +8,9 @@ function log_msg($msg){
 }
 
 function sell_remainder(){
+    
+    global $sell_remainder_max;
+
     static $last_call = null;
 
     if($last_call && (time()-$last_call) < 180){
@@ -23,6 +26,9 @@ function sell_remainder(){
         $highest = get_highest_price(60*60);
         if(!$highest){
             return false;
+        }
+        if($highest > $sell_remainder_max){
+            $highest = $sell_remainder_max;
         }
         $o = add_order('sell',$balance,$highest);
         $msg = 'Selling remainder: '.$balance.' '.$currency.' at '.$highest;
@@ -59,6 +65,8 @@ $profit = 0;
 $min_profit = .001;
 $order_b = [];
 $order_s = [];
+$trashold = 0.00007;
+$sell_remainder_max = $trashold + 0.00000010;
 
 while(true){
 
@@ -83,6 +91,12 @@ while(true){
             // NOT WORTH IT
             if($advice['profit'] < $min_profit){
                 echo "<<<<< $min_profit (".$advice['profit'].')'.PHP_EOL;
+                sleep(10);
+                continue;
+            }
+
+            if($advice['avg_l'] >= $trashold){
+                echo "^^^ Trashold!!!!";
                 sleep(10);
                 continue;
             }
