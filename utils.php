@@ -192,10 +192,14 @@ function select_range(array $ranges, $value){
 	}
 }
 
-function check_slot_taken($value){
+function check_slot_taken($values){
+
+	if(!is_array($values)){
+		$values = [$values];
+	}
 
 	$start = 0.00001000;
-	$finish = 0.00009000;
+	$finish = 0.00019000;
 
 	$step = 0.00000050;
 
@@ -213,11 +217,16 @@ function check_slot_taken($value){
 		}
 	}
 
-	$range = select_range($ranges, $value);
+	foreach($values as $value){
 
-	if(in_array($range, $locked)){
-		return $range;
+		$range = select_range($ranges, $value);
+
+		if(in_array($range, $locked)){
+			return $range;
+		}
+
 	}
+
 
 }
 

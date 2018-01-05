@@ -2,6 +2,8 @@
 
 require __DIR__.'/utils.php';
 
+define('HIGHEST_PRICE_INTERVAL', 60*60);
+
 function log_msg($msg){
     $msg .= '|'.date('Y-m-d H:i');
     file_put_contents(__DIR__."/logs.txt",$msg.PHP_EOL,FILE_APPEND);
@@ -23,7 +25,7 @@ function sell_remainder(){
     $currency = $config['currency'];
     $balance = get_balance($currency);
     if($balance){
-        $highest = get_highest_price(60*60);
+        $highest = get_highest_price(HIGHEST_PRICE_INTERVAL);
         if(!$highest){
             return false;
         }
@@ -65,7 +67,7 @@ $profit = 0;
 $min_profit = .001;
 $order_b = [];
 $order_s = [];
-$trashold = 0.00007;
+$trashold = 0.00015;
 $sell_remainder_max = $trashold + 0.00000010;
 
 while(true){
@@ -104,7 +106,10 @@ while(true){
             // ADVICE OK
             if(!empty($advice['avg_l']) && !empty($advice['avg_h'])){
 
-                if($range = check_slot_taken($advice['avg_h'])){
+                $check_taken_args = [$advice['avg_h']];
+                $check_taken_args[] = get_highest_price(HIGHEST_PRICE_INTERVAL);
+
+                if($range = check_slot_taken($check_taken_args)){
                     $msg = "range is taken: ".$range." (value attempted: ".$advice['avg_h'].") ";
                     echo $msg.PHP_EOL;
                     log_msg($msg);
@@ -231,6 +236,7 @@ while(true){
 
                 // DONE!!
                 echo '--- '.$sell_at.PHP_EOL;
+                log_msg('profit: '.$profit);
 
                 // GOT BACK TO STEP 1
                 $status = 'buy';

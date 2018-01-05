@@ -2,7 +2,7 @@
 
 require 'utils.php';
 
-$balance = get_balance('BTC');
+$balance = get_intended_balance();
 if(!empty($argv[1]) && $argv[1]!='*'){
 	$profit_btc = $balance - $argv[1];
 } else {
