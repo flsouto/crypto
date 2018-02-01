@@ -1,0 +1,41 @@
+diff --git a/advise.php b/advise.php
+index 4b02d58..0e0899c 100644
+--- a/advise.php
++++ b/advise.php
+@@ -6,7 +6,7 @@ $config = get_config();
+ 
+ assert_snap_is_running();
+ 
+-$symbol = $config['symbol'];
++$symbol = $argv[1] ?? $config['symbol'];
+ 
+ $array = [];
+ 
+@@ -73,7 +73,7 @@ $avg_h = array_sum($high) / count($high);
+ $avg_l = array_sum($low) / count($low);
+ 
+ $funds = $config['funds'];
+-$amount = ceil($funds / $avg_l);
++$amount = $funds / $avg_l;
+ $profit = calc_profit($avg_l, $avg_h);
+ 
+ $rise = 0;
+diff --git a/utils.php b/utils.php
+index 3e904c5..992047f 100644
+--- a/utils.php
++++ b/utils.php
+@@ -35,8 +35,12 @@ function get_btc2usd(){
+ 	return file_get_contents($file) ?: 10000;
+ }
+ 
+-function get_advice(){
+-    $output = `php advise.php`;
++function get_advice($symbol=null){
++    $cmd = "php advise.php";
++    if($symbol){
++        $cmd .= " ".$symbol;
++    }
++    $output = `$cmd`;
+     $advice = [];
+     foreach(explode("\n",$output) as $line){
+         if(empty($line)){
