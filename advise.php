@@ -6,7 +6,7 @@ $config = get_config();
 
 assert_snap_is_running();
 
-$symbol = $config['symbol'];
+$symbol = $argv[1] ?? $config['symbol'];
 
 $array = [];
 
@@ -73,7 +73,10 @@ $avg_h = array_sum($high) / count($high);
 $avg_l = array_sum($low) / count($low);
 
 $funds = $config['funds'];
-$amount = ceil($funds / $avg_l);
+$amount = $funds / $avg_l;
+if($symbol=='XEMBTC'){
+    $amount = ceil($amount);
+}
 $profit = calc_profit($avg_l, $avg_h);
 
 $rise = 0;

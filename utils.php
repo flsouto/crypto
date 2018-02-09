@@ -35,8 +35,12 @@ function get_btc2usd(){
 	return file_get_contents($file) ?: 10000;
 }
 
-function get_advice(){
-    $output = `php advise.php`;
+function get_advice($symbol=''){
+	$cmd = "php advise.php";
+	if($symbol){
+		$cmd .= " ".$symbol;
+	}
+    $output = `$cmd`;
     $advice = [];
     foreach(explode("\n",$output) as $line){
         if(empty($line)){
